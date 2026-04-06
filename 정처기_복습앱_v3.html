@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>정처기 실기 복습 v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ac:#3B5BDB;--ac2:#4C6EF5;--ac-light:#EEF2FF;
+  --bg:#F8F9FC;--card:#fff;--text:#1A1D2E;--sub:#6B7280;
+  --border:#E4E7F0;--green:#059669;--red:#DC2626;--orange:#D97706;
+  --nav-h:68px;
+}
+html{height:100%}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100%;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px)}
+
+/* ── HEADER ── */
+.hd{background:#fff;border-bottom:1.5px solid var(--border);padding:12px 16px 0;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.hd-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hd-title{font-size:17px;font-weight:900;letter-spacing:-.4px;display:flex;align-items:center;gap:6px}
+.hd-badge{background:var(--ac);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;letter-spacing:.3px}
+.hd-stat{font-size:11px;font-weight:700;color:var(--sub);background:var(--bg);padding:4px 10px;border-radius:20px;border:1px solid var(--border)}
+.mode-tabs{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px;margin-bottom:10px}
+.mode-tab{flex:1;padding:8px 4px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--sub);background:transparent;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px}
+.mode-tab.on{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* ── NAV ── */
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);display:flex;z-index:300;padding-bottom:env(safe-area-inset-bottom);height:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:transparent;cursor:pointer;color:var(--sub);font-family:inherit;font-size:9px;font-weight:700;padding:8px 2px 4px;transition:all .2s;position:relative}
+.nav-btn .ico{font-size:21px;line-height:1;transition:transform .2s}
+.nav-btn.on{color:var(--ac)}
+.nav-btn.on .ico{transform:scale(1.1)}
+.nav-dot{position:absolute;top:8px;right:calc(50% - 14px);width:6px;height:6px;border-radius:50%;background:var(--red);display:none}
+.nav-dot.show{display:block}
+
+/* ── MAIN ── */
+.main{padding:12px}
+.view{display:none}.view.on{display:block}
+
+/* ── REVIEW CARDS ── */
+.rcard{background:#fff;border-radius:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1.5px solid var(--border);overflow:hidden;transition:border-color .2s}
+.rcard.open{border-color:var(--ac)}
+.rcard-hd{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer;gap:8px;user-select:none;-webkit-user-select:none}
+.rcard-hd-l{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.rcard-num{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;background:var(--ac-light);color:var(--ac)}
+.rcard-name{font-size:13.5px;font-weight:700;line-height:1.3}
+.prob-badge{font-size:13px;flex-shrink:0}
+.arr{font-size:12px;color:#ccc;transition:transform .25s;flex-shrink:0}
+.rcard.open .arr{transform:rotate(180deg)}
+.rcard-body{display:none;border-top:1.5px solid var(--border);padding:13px 14px}
+.rcard.open .rcard-body{display:block}
+
+/* tables */
+.rt{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0;border-radius:8px;overflow:hidden}
+.rt th{background:var(--ac-light);padding:7px 10px;text-align:left;font-weight:800;color:var(--ac);border-bottom:1.5px solid var(--border);font-size:11.5px}
+.rt td{padding:7px 10px;border-bottom:1px solid var(--border);color:#333;vertical-align:top;line-height:1.55;font-size:12.5px}
+.rt tr:last-child td{border-bottom:none}
+.rt td b,.rt td strong{color:#111;font-weight:800}
+.rt td code{background:#F1F3F9;padding:1px 5px;border-radius:4px;font-size:11px;font-family:monospace;color:#2563EB}
+.tip{background:var(--ac-light);border-left:3px solid var(--ac);border-radius:0 8px 8px 0;padding:10px 12px;margin-top:8px;font-size:12.5px;line-height:1.75;color:#333}
+.tip b{color:var(--ac)}
+.mnemo{background:var(--text);color:#fff;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;margin-bottom:8px;display:inline-block;letter-spacing:.2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:8px 0}
+.flow .s{background:var(--ac-light);border:1.5px solid #c5d0f8;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ac)}
+.flow .a{color:#bbb;font-size:11px}
+
+/* ── QUIZ ── */
+.quiz-view{display:none;flex-direction:column;gap:10px}
+.quiz-view.on{display:flex}
+
+/* progress */
+.prog-card{background:#fff;border-radius:12px;padding:11px 14px;border:1.5px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.prog-label{font-size:11.5px;font-weight:700;color:var(--sub)}
+.prog-score{font-size:12px;font-weight:800;display:flex;gap:12px}
+.score-c{color:var(--green)}.score-w{color:var(--red)}
+.pbar{height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* question card */
+.qcard{background:#fff;border-radius:16px;border:1.5px solid var(--border);box-shadow:0 3px 12px rgba(0,0,0,.07);overflow:hidden;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.qcard-top{background:var(--ac-light);padding:9px 16px;display:flex;justify-content:space-between;align-items:center}
+.qcat{font-size:11px;font-weight:800;color:var(--ac)}
+.qnum{font-size:11px;font-weight:700;color:var(--sub)}
+.qbody{padding:18px 16px 14px}
+.qtype-wrap{margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.qtype-badge{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:5px;display:inline-block}
+.qtype-badge.fill{background:#FEF3C7;color:#92400E}
+.qtype-badge.term{background:#EDE9FE;color:#5B21B6}
+.qtype-badge.order{background:#DCFCE7;color:#166534}
+.qdiff{font-size:10.5px;font-weight:700;color:var(--sub)}
+.qtxt{font-size:15px;font-weight:700;line-height:1.7;color:#111}
+.blank{display:inline-block;min-width:55px;border-bottom:2.5px solid var(--ac);color:var(--ac);font-weight:900;padding:0 4px;text-align:center;margin:0 1px}
+
+/* reveal */
+.reveal-btn{width:100%;padding:14px 16px;border:none;background:#F8F9FC;font-family:inherit;font-size:13.5px;font-weight:700;color:var(--sub);cursor:pointer;border-top:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s}
+.reveal-btn:active{background:#EEF2FF}
+.qans{display:none;border-top:2.5px solid var(--ac);padding:16px;background:#fff}
+.qans.show{display:block}
+.ans-tag{font-size:10px;font-weight:900;color:var(--ac);letter-spacing:.1em;margin-bottom:8px}
+.ans-main{font-size:16px;font-weight:900;color:var(--text);margin-bottom:8px;line-height:1.6}
+.ans-desc{font-size:13px;color:#555;line-height:1.7;font-weight:500}
+.ans-desc b{color:#111;font-weight:800}
+
+/* action buttons */
+.qactions{display:none;gap:10px}
+.qactions.show{display:grid;grid-template-columns:1fr 1fr}
+.btn-wrong{padding:15px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;background:var(--red);color:#fff;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-right{padding:15px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;background:var(--green);color:#fff;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-wrong:active,.btn-right:active{opacity:.82}
+
+/* result */
+.qresult{background:#fff;border-radius:16px;border:1.5px solid var(--border);padding:28px 20px;text-align:center;display:none;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.qresult.show{display:block;animation:fadeUp .35s ease both}
+.res-emoji{font-size:56px;margin-bottom:8px}
+.res-title{font-size:21px;font-weight:900;margin-bottom:4px}
+.res-sub{font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.6}
+.res-pct{font-size:52px;font-weight:900;color:var(--ac);line-height:1;margin-bottom:12px}
+.res-stats{display:flex;justify-content:center;gap:28px;margin-bottom:22px;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.res-stat .n{font-size:24px;font-weight:900;line-height:1}
+.res-stat .l{font-size:10.5px;color:var(--sub);font-weight:600;margin-top:3px}
+.btn-retry{width:100%;padding:14px;border-radius:12px;border:none;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;background:var(--ac);color:#fff;margin-bottom:8px;transition:opacity .2s}
+.btn-retry:active{opacity:.85}
+.btn-review-wrong{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--red);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:var(--red);margin-bottom:8px;display:none}
+.btn-review-wrong.show{display:block}
+.btn-back{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;background:#fff;color:var(--text)}
+
+/* wrong list */
+.wrong-review{display:none;flex-direction:column;gap:8px}
+.wrong-review.on{display:flex}
+.wrong-card{background:#fff;border-radius:12px;border:1.5px solid #FFE4E4;padding:13px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wrong-q{font-size:13px;font-weight:700;color:#111;margin-bottom:8px;line-height:1.6}
+.wrong-a{font-size:13px;color:var(--green);font-weight:800;background:#F0FDF4;padding:8px 10px;border-radius:8px;line-height:1.5}
+.wrong-a-label{font-size:10px;color:var(--green);font-weight:800;letter-spacing:.08em;margin-bottom:3px}
+.back-quiz-btn{width:100%;padding:13px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;background:var(--ac);color:#fff;margin-bottom:10px}
+
+/* section header */
+.sec-hd{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.08em;padding:4px 2px 8px;margin-top:4px}
+
+/* quiz filter */
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.filter-btn{padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#fff;color:var(--sub);transition:all .15s}
+.filter-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-row">
+    <div class="hd-title">
+      <span id="hd-cat-name">DB</span>
+      <span class="hd-badge" id="hd-badge">💯</span>
+    </div>
+    <span class="hd-stat" id="hd-stat"></span>
+  </div>
+  <div class="mode-tabs">
+    <button class="mode-tab on" onclick="setMode('review')">📖 복습</button>
+    <button class="mode-tab" onclick="setMode('quiz')">✏️ 퀴즈</button>
+    <button class="mode-tab" onclick="setMode('wronglist')">❌ 오답</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- REVIEW -->
+  <div class="view on" id="view-review"></div>
+
+  <!-- QUIZ -->
+  <div class="quiz-view" id="view-quiz">
+    <div class="prog-card">
+      <div class="prog-top">
+        <span class="prog-label" id="prog-label">0 / 0</span>
+        <div class="prog-score"><span class="score-c" id="sc-c">✓ 0</span><span class="score-w" id="sc-w">✗ 0</span></div>
+      </div>
+      <div class="pbar"><div class="pbar-fill" id="pbar" style="width:0%"></div></div>
+    </div>
+
+    <div class="qcard" id="qcard">
+      <div class="qcard-top">
+        <span class="qcat" id="q-section">—</span>
+        <span class="qnum" id="q-num">1 / 30</span>
+      </div>
+      <div class="qbody">
+        <div class="qtype-wrap">
+          <span class="qtype-badge" id="q-type-badge"></span>
+          <span class="qdiff" id="q-diff"></span>
+        </div>
+        <div class="qtxt" id="q-txt"></div>
+      </div>
+      <div class="qans" id="q-ans">
+        <div class="ans-tag">✅ 정답</div>
+        <div class="ans-main" id="q-ans-main"></div>
+        <div class="ans-desc" id="q-ans-desc"></div>
+      </div>
+      <button class="reveal-btn" id="reveal-btn" onclick="reveal()">👆 탭해서 정답 확인</button>
+    </div>
+
+    <div class="qactions" id="qactions">
+      <button class="btn-wrong" onclick="mark(false)">✗ 틀렸어</button>
+      <button class="btn-right" onclick="mark(true)">✓ 맞았어</button>
+    </div>
+
+    <div class="qresult" id="qresult">
+      <div class="res-emoji" id="r-emoji"></div>
+      <div class="res-title" id="r-title"></div>
+      <div class="res-sub" id="r-sub"></div>
+      <div class="res-pct" id="r-pct"></div>
+      <div class="res-stats">
+        <div class="res-stat"><div class="n" style="color:var(--green)" id="r-c">0</div><div class="l">맞음</div></div>
+        <div class="res-stat"><div class="n" style="color:var(--red)" id="r-w">0</div><div class="l">틀림</div></div>
+        <div class="res-stat"><div class="n" id="r-t">0</div><div class="l">전체</div></div>
+      </div>
+      <button class="btn-retry" onclick="startQuiz()">🔁 다시 풀기</button>
+      <button class="btn-review-wrong" id="btn-rw" onclick="goWrongList()">❌ 틀린 문제 보기</button>
+      <button class="btn-back" onclick="setMode('review')">📖 복습 보기</button>
+    </div>
+  </div>
+
+  <!-- WRONG LIST -->
+  <div class="view" id="view-wronglist">
+    <button class="back-quiz-btn" onclick="setMode('quiz')">↩ 퀴즈로 돌아가기</button>
+    <div class="sec-hd" id="wl-hd">틀린 문제 목록</div>
+    <div id="wl-body"></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn on" data-cat="db" onclick="setCat('db')"><span class="ico">🗄️</span>DB</button>
+  <button class="nav-btn" data-cat="net" onclick="setCat('net')"><span class="ico">🌐</span>네트워크</button>
+  <button class="nav-btn" data-cat="sw" onclick="setCat('sw')"><span class="ico">🧪</span>SW개발</button>
+  <button class="nav-btn" data-cat="des" onclick="setCat('des')"><span class="ico">🏗️</span>SW설계</button>
+  <button class="nav-btn" data-cat="sec" onclick="setCat('sec')"><span class="ico">🔐</span>보안</button>
+</nav>
+
+<script>
+// ─────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────
+const CATS = {
+  db:  {name:'DB',       badge:'💯', color:'#3B5BDB'},
+  net: {name:'네트워크/OS', badge:'⭐', color:'#7C3AED'},
+  sw:  {name:'SW 개발',   badge:'🔥', color:'#059669'},
+  des: {name:'SW 설계',   badge:'💯', color:'#D97706'},
+  sec: {name:'보안/신기술', badge:'🔥', color:'#DC2626'},
+};
+
+// ── REVIEW DATA ──────────────────────────
+const RV = {
+db:[
+{num:'1',name:'SQL 명령어 핵심',p:'💯',b:`
+<div class="mnemo">INSERT · UPDATE · DELETE · DROP · ALTER · GRANT · REVOKE</div>
+<table class="rt"><tr><th>상황</th><th>쿼리 핵심</th></tr>
+<tr><td>데이터 추가</td><td><b>INSERT INTO</b> 테이블(컬럼) VALUES(값);</td></tr>
+<tr><td>데이터 복제</td><td><b>INSERT INTO</b> 테이블1(컬럼) SELECT 컬럼 FROM 테이블2;</td></tr>
+<tr><td>데이터 삭제</td><td><b>DELETE FROM</b> 테이블 WHERE 조건;</td></tr>
+<tr><td>데이터 수정</td><td><b>UPDATE</b> 테이블 <b>SET</b> 컬럼=값 WHERE 조건;</td></tr>
+<tr><td>테이블 제거</td><td><b>DROP TABLE</b> 테이블 RESTRICT/CASCADE;</td></tr>
+<tr><td>권한 부여</td><td><b>GRANT</b> 권한 ON 테이블 TO 사용자;</td></tr>
+<tr><td>권한 회수</td><td><b>REVOKE</b> 권한 ON 테이블 FROM 사용자;</td></tr>
+<tr><td>컬럼 추가</td><td><b>ALTER TABLE</b> 테이블 ADD 컬럼명 타입;</td></tr>
+<tr><td>컬럼 제거</td><td><b>ALTER TABLE</b> 테이블 DROP COLUMN 컬럼명;</td></tr>
+<tr><td>인덱스 생성</td><td><b>CREATE INDEX</b> 이름 ON 테이블(컬럼);</td></tr>
+<tr><td>뷰 생성</td><td><b>CREATE VIEW</b> 뷰명 AS SELECT ...;</td></tr>
+</table>
+<div class="tip"><b>LIKE 패턴:</b> '%문자%' 포함 / '문자%' 시작 / '_문자' 앞 한 글자<br><b>BETWEEN:</b> WHERE 컬럼 BETWEEN 1 AND 3 (1~3 포함)<br><b>IN:</b> WHERE 컬럼 IN (1,2,3)<br><b>NULL 조회:</b> WHERE 컬럼 IS NULL<br><b>AND가 OR보다 우선</b> 처리!</div>`},
+{num:'2',name:'SQL 집계·조인·집합',p:'💯',b:`
+<table class="rt"><tr><th>집계함수</th><th>설명</th></tr>
+<tr><td><b>COUNT(*)</b></td><td>모든 행 개수</td></tr>
+<tr><td><b>COUNT(컬럼)</b></td><td>NULL 제외한 행 개수</td></tr>
+<tr><td><b>COUNT(DISTINCT 컬럼)</b></td><td>중복 제거 후 개수</td></tr>
+<tr><td><b>SUM / AVG / MAX / MIN</b></td><td>합계·평균·최대·최소</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>조인 종류</th><th>키워드</th></tr>
+<tr><td><b>세타 조인</b></td><td>INNER JOIN ... ON 컬럼1 > 컬럼2 (비교 연산자)</td></tr>
+<tr><td><b>동등 조인</b></td><td>INNER JOIN ... ON 컬럼1 = 컬럼2</td></tr>
+<tr><td><b>자연 조인</b></td><td>NATURAL JOIN (중복 속성 자동 제거)</td></tr>
+<tr><td><b>외부 조인</b></td><td>LEFT/RIGHT/FULL OUTER JOIN (불일치 → NULL)</td></tr>
+<tr><td><b>교차 조인</b></td><td>CROSS JOIN (모든 조합)</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>집합연산자</th><th>의미</th></tr>
+<tr><td><b>UNION</b></td><td>중복 제거 합집합</td></tr>
+<tr><td><b>UNION ALL</b></td><td>중복 허용 합집합</td></tr>
+<tr><td><b>INTERSECT</b></td><td>교집합</td></tr>
+<tr><td><b>EXCEPT / MINUS</b></td><td>차집합 (Oracle은 MINUS)</td></tr>
+</table>`},
+{num:'3',name:'트랜잭션 ACID + 회복',p:'⭐',b:`
+<table class="rt"><tr><th>특성</th><th>영어</th><th>핵심</th></tr>
+<tr><td><b>원자성</b></td><td>Atomicity</td><td>All or Nothing</td></tr>
+<tr><td><b>일관성</b></td><td>Consistency</td><td>전후 무결성 보장</td></tr>
+<tr><td><b>고립성</b></td><td>Isolation</td><td>다른 트랜잭션 끼어들기 불가</td></tr>
+<tr><td><b>지속성</b></td><td>Durability</td><td>완료 결과 영구 저장</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>회복 요소</th><th>조건</th><th>동작</th></tr>
+<tr><td><b>Redo (재실행)</b></td><td>Start + Commit 모두 있음</td><td>장애 전 DB로 복구</td></tr>
+<tr><td><b>Undo (취소)</b></td><td>Start만 있고 Commit 없음</td><td>작업 전부 취소</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>회복 기법</th><th>핵심</th></tr>
+<tr><td><b>지연 갱신</b></td><td>Commit까지 DB 변경 미룸 → Redo만 사용</td></tr>
+<tr><td><b>즉각 갱신</b></td><td>즉시 반영 → Redo + Undo 모두 필요</td></tr>
+<tr><td><b>체크포인트</b></td><td>특정 시점 저장, 장애 시 체크포인트부터 회복</td></tr>
+<tr><td><b>그림자 페이징</b></td><td>원본 복사 후 실패 시 복사본으로 대체</td></tr>
+</table>
+<div class="tip"><b>S-Lock(공유):</b> 읽기 시 사용, 동시 읽기 가능, 쓰기 불가<br><b>X-Lock(배타):</b> 쓰기 시 사용, 읽기·쓰기 모두 불가</div>`},
+{num:'4',name:'정규화',p:'🔥',b:`
+<div class="mnemo">1NF → 2NF → 3NF → BCNF → 4NF → 5NF</div>
+<table class="rt"><tr><th>정규형</th><th>제거 대상</th><th>조건</th></tr>
+<tr><td><b>1NF</b></td><td>반복 그룹</td><td>모든 속성 = 원자값</td></tr>
+<tr><td><b>2NF</b></td><td>부분 함수 종속</td><td>완전 함수 종속 성립</td></tr>
+<tr><td><b>3NF</b></td><td>이행 함수 종속</td><td>A→B→C 제거</td></tr>
+<tr><td><b>BCNF</b></td><td>후보키 아닌 결정자</td><td>모든 결정자 = 후보키</td></tr>
+<tr><td><b>4NF</b></td><td>다치 종속</td><td>—</td></tr>
+<tr><td><b>5NF</b></td><td>조인 종속</td><td>—</td></tr>
+</table>
+<div class="tip">
+<b>완전 함수 종속:</b> 기본키 전체에만 종속<br>
+<b>부분 함수 종속:</b> 기본키의 일부에만 종속<br>
+<b>이행 함수 종속:</b> A→B, B→C ⇒ A→C 성립<br>
+<b>반정규화:</b> 성능 위해 의도적 중복 허용
+</div>`},
+{num:'5',name:'키(Key) 5종류',p:'⭐',b:`
+<div class="mnemo">기대(후)슈 → 기본키 + 대체키 = 후보키 ⊂ 슈퍼키</div>
+<table class="rt"><tr><th>키</th><th>유일성</th><th>최소성</th><th>핵심</th></tr>
+<tr><td><b>슈퍼키</b></td><td>✅</td><td>❌</td><td>유일하게 식별 가능</td></tr>
+<tr><td><b>후보키</b></td><td>✅</td><td>✅</td><td>PK가 될 수 있는 키</td></tr>
+<tr><td><b>기본키(PK)</b></td><td>✅</td><td>✅</td><td>선택된 후보키, NOT NULL</td></tr>
+<tr><td><b>대체키</b></td><td>✅</td><td>✅</td><td>PK 안된 나머지 후보키</td></tr>
+<tr><td><b>외래키(FK)</b></td><td>—</td><td>—</td><td>다른 릴레이션의 PK 참조</td></tr>
+</table>`},
+{num:'6',name:'관계대수 / 관계해석 / 스키마',p:'🤔',b:`
+<table class="rt"><tr><th>구분</th><th>관계대수</th><th>관계해석</th></tr>
+<tr><td>방식</td><td>절차적 언어</td><td>비절차적 언어</td></tr>
+<tr><td>초점</td><td>HOW (어떻게)</td><td>WHAT (무엇을)</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>순수 관계 연산자</th><th>기호</th><th>방향</th></tr>
+<tr><td><b>셀렉트</b></td><td>σ (시그마)</td><td>수평 — 행 선택</td></tr>
+<tr><td><b>프로젝트</b></td><td>π (파이)</td><td>수직 — 열 선택</td></tr>
+<tr><td><b>조인</b></td><td>⋈</td><td>공통 속성 결합</td></tr>
+<tr><td><b>디비전</b></td><td>÷</td><td>B 모든 튜플과 관계 있는 A 반환</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>스키마</th><th>관점</th><th>내용</th></tr>
+<tr><td><b>외부</b></td><td>사용자/개발자</td><td>사용자 뷰, 서브스키마</td></tr>
+<tr><td><b>개념</b></td><td>DBA</td><td>전체 DB 논리 구조</td></tr>
+<tr><td><b>내부</b></td><td>시스템</td><td>물리적 저장 구조</td></tr>
+</table>
+<div class="flow" style="margin-top:8px">
+<span class="s">요구조건분석</span><span class="a">→</span><span class="s">개념적설계</span><span class="a">→</span><span class="s">논리적설계</span><span class="a">→</span><span class="s">물리적설계</span><span class="a">→</span><span class="s">구현</span>
+</div>`},
+{num:'7',name:'스토리지(RAID) / 무결성',p:'🔥',b:`
+<table class="rt"><tr><th>RAID</th><th>방식</th><th>최소 디스크</th><th>특징</th></tr>
+<tr><td><b>RAID 0</b></td><td>스트라이핑</td><td>2개</td><td>빠름, 안정성 없음</td></tr>
+<tr><td><b>RAID 1</b></td><td>미러링</td><td>2개</td><td>높은 안정성</td></tr>
+<tr><td><b>RAID 5</b></td><td>스트라이핑+분산패리티</td><td>3개</td><td>성능·안정 균형</td></tr>
+<tr><td><b>RAID 6</b></td><td>스트라이핑+이중분산패리티</td><td>4개</td><td>2개 장애 허용</td></tr>
+<tr><td><b>RAID 10</b></td><td>RAID1 후 RAID0</td><td>4개</td><td>성능+안정</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>무결성</th><th>SQL</th><th>조건</th></tr>
+<tr><td><b>개체</b></td><td>PRIMARY KEY</td><td>NOT NULL + 유일</td></tr>
+<tr><td><b>참조</b></td><td>FOREIGN KEY</td><td>참조 PK값 or NULL</td></tr>
+<tr><td><b>속성(도메인)</b></td><td>DOMAIN, CHECK, DEFAULT</td><td>정의된 도메인 내</td></tr>
+<tr><td><b>사용자 정의</b></td><td>TRIGGER</td><td>비즈니스 규칙</td></tr>
+<tr><td><b>키</b></td><td>UNIQUE</td><td>동일 키값 불가</td></tr>
+</table>`},
+],
+net:[
+{num:'1',name:'메모리 교체 알고리즘',p:'⭐',b:`
+<table class="rt"><tr><th>알고리즘</th><th>교체 기준</th><th>특이사항</th></tr>
+<tr><td><b>FIFO</b></td><td>가장 먼저 들어온 것</td><td>Belady's Anomaly 발생 가능</td></tr>
+<tr><td><b>LRU</b></td><td>가장 오랫동안 미참조</td><td>성능 우수, 가장 많이 사용</td></tr>
+<tr><td><b>LFU</b></td><td>참조 횟수 가장 적은 것</td><td>동률 시 FIFO 적용</td></tr>
+<tr><td><b>OPT</b></td><td>앞으로 가장 안쓸 것</td><td>이론상 최적, 실제 구현 불가</td></tr>
+</table>
+<div class="tip"><b>Page Fault:</b> 참조 페이지가 메모리에 없을 때 발생<br><b>FIFO 풀이:</b> 밀어내기 식 / <b>LRU 풀이:</b> 참조 시 위로 이동</div>`},
+{num:'2',name:'프로세스 스케줄링',p:'🤔',b:`
+<div class="mnemo">비선점: FIFO·SJF·HRN·기한부·우선순위 / 선점: RR·SRT</div>
+<table class="rt"><tr><th>알고리즘</th><th>선점여부</th><th>핵심</th></tr>
+<tr><td><b>FIFO</b></td><td>비선점</td><td>도착 순서대로</td></tr>
+<tr><td><b>SJF</b></td><td>비선점</td><td>실행 시간 짧은 것 먼저</td></tr>
+<tr><td><b>HRN</b></td><td>비선점</td><td>SJF + 대기 시간 고려</td></tr>
+<tr><td><b>Round Robin</b></td><td>선점</td><td>FIFO + 시간 할당량(퀀텀)</td></tr>
+<tr><td><b>SRT</b></td><td>선점</td><td>선점형 SJF</td></tr>
+</table>
+<div class="tip"><b>반환 시간 = 대기 시간 + 실행 시간</b><br>평균 대기 시간 = 각 프로세스 대기 시간 합 ÷ 개수</div>`},
+{num:'3',name:'라우팅 프로토콜',p:'⭐',b:`
+<table class="rt"><tr><th>프로토콜</th><th>알고리즘</th><th>분류</th><th>특징</th></tr>
+<tr><td><b>RIP</b></td><td>거리 벡터 (벨만-포드)</td><td>IGP</td><td>홉 수 기준, 최대 15홉</td></tr>
+<tr><td><b>OSPF</b></td><td>링크 상태 (다익스트라)</td><td>IGP</td><td>경로 비용 기준, 대규모</td></tr>
+<tr><td><b>BGP</b></td><td>경로 벡터</td><td>EGP</td><td>AS 간 라우팅, 인터넷 핵심</td></tr>
+</table>
+<div class="tip"><b>IGP:</b> 동일 AS 내부 / <b>EGP:</b> 서로 다른 AS 간<br><b>AS(자율시스템):</b> 같은 라우팅 정책 사용하는 네트워크 그룹</div>`},
+{num:'4',name:'네트워크 계층 프로토콜',p:'🔥',b:`
+<table class="rt"><tr><th>프로토콜</th><th>역할</th></tr>
+<tr><td><b>ARP</b></td><td>IP(논리주소) → MAC(물리주소) 변환</td></tr>
+<tr><td><b>RARP</b></td><td>MAC(물리주소) → IP(논리주소) 변환</td></tr>
+<tr><td><b>ICMP</b></td><td>오류 정보 전송, Ping-of-Death에서 사용</td></tr>
+<tr><td><b>IGMP</b></td><td>멀티캐스트 그룹 관리</td></tr>
+<tr><td><b>NAT</b></td><td>사설 IP → 공인 IP 변환 (IPv4 주소 부족 해결)</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>데이터 링크 계층</th><th>핵심</th></tr>
+<tr><td><b>HDLC</b></td><td>비트 지향 프로토콜, 흐름/오류 제어</td></tr>
+<tr><td><b>ATM</b></td><td>비동기식 시분할 다중화</td></tr>
+<tr><td><b>PPP</b></td><td>두 노드 직접 연결</td></tr>
+</table>`},
+{num:'5',name:'응용 계층 프로토콜 (포트번호)',p:'🔥',b:`
+<table class="rt"><tr><th>프로토콜</th><th>포트</th><th>역할</th></tr>
+<tr><td><b>SSH</b></td><td>22</td><td>암호화 원격접속 (Telnet보다 강력)</td></tr>
+<tr><td><b>Telnet</b></td><td>23</td><td>원격 접속 (평문)</td></tr>
+<tr><td><b>SMTP</b></td><td>25</td><td>메일 전송(발송)</td></tr>
+<tr><td><b>DNS</b></td><td>53</td><td>도메인 → IP 변환</td></tr>
+<tr><td><b>HTTP</b></td><td>80</td><td>웹 요청/응답 (GET/POST)</td></tr>
+<tr><td><b>POP3</b></td><td>110</td><td>메일 수신 (다운로드)</td></tr>
+<tr><td><b>IMAP</b></td><td>143</td><td>메일 수신 (동기화·유지)</td></tr>
+<tr><td><b>HTTPS</b></td><td>443</td><td>HTTP + SSL/TLS (암호화)</td></tr>
+<tr><td><b>FTP</b></td><td>21</td><td>파일 전송</td></tr>
+</table>`},
+{num:'6',name:'IP주소 / 서브넷 / Shell Script',p:'🔥',b:`
+<table class="rt"><tr><th></th><th>IPv4</th><th>IPv6</th></tr>
+<tr><td>비트</td><td>32비트</td><td><b>128비트</b></td></tr>
+<tr><td>구분</td><td>.(점) — 4그룹</td><td>:(콜론) — 8그룹</td></tr>
+<tr><td>표기</td><td>10진수</td><td>16진수</td></tr>
+</table>
+<div class="tip" style="margin-top:8px">
+<b>서브넷 마스크 255.255.255.0 = /24</b> (1이 24개)<br>
+<b>CIDR:</b> 네트워크주소 + /prefix (예: 192.168.1.0/24)<br>
+<b>chmod 754:</b> 사용자(7=rwx), 그룹(5=r-x), 기타(4=r--)<br>
+읽기r=4 / 쓰기w=2 / 실행x=1
+</div>
+<div class="tip"><b>HDLC 프레임:</b> I(0)=데이터 · S(10)=오류/흐름제어 · U(11)=링크모드설정<br><b>FEC:</b> 스스로 오류 수정 (해밍코드) / <b>BEC/ARQ:</b> 재전송 요청</div>`},
+],
+sw:[
+{num:'1',name:'테스트 커버리지 (화이트박스)',p:'⭐',b:`
+<div class="mnemo">강도: 구문 &lt; 결정 &lt; 조건 &lt; 조건/결정 &lt; MC/DC</div>
+<table class="rt"><tr><th>커버리지</th><th>영어</th><th>핵심</th></tr>
+<tr><td><b>구문(문장)</b></td><td>Statement</td><td>모든 명령문 1회 이상 수행</td></tr>
+<tr><td><b>결정(분기)</b></td><td>Decision / Branch</td><td>모든 결정문의 T/F</td></tr>
+<tr><td><b>조건</b></td><td>Condition</td><td>각 개별 조건식 T/F</td></tr>
+<tr><td><b>조건/결정</b></td><td>Condition/Decision</td><td>조건 + 결정 동시 만족</td></tr>
+<tr><td><b>MC/DC</b></td><td>Modified C/D</td><td>각 조건식의 독립적 영향</td></tr>
+</table>`},
+{num:'2',name:'블랙박스 테스트 유형',p:'🔥',b:`
+<table class="rt"><tr><th>유형</th><th>영어</th><th>핵심</th></tr>
+<tr><td><b>동등 분할</b></td><td>Equivalence Partitioning</td><td>유효/무효값 그룹핑</td></tr>
+<tr><td><b>경곗값 분석</b></td><td>Boundary Value Analysis</td><td>경계값 집중 테스트</td></tr>
+<tr><td><b>결정 테이블</b></td><td>Decision Table</td><td>조건·행동 표로 정리</td></tr>
+<tr><td><b>원인-결과 그래프</b></td><td>Cause-Effect Graph</td><td>입력→출력 영향 그래프</td></tr>
+<tr><td><b>상태 전이</b></td><td>State Transition</td><td>상태 변화 기반</td></tr>
+<tr><td><b>오류 예측</b></td><td>Error Guessing</td><td>경험/직관으로 예측</td></tr>
+<tr><td><b>페어와이즈</b></td><td>Pairwise Testing</td><td>모든 쌍 조합 최소 테스트</td></tr>
+<tr><td><b>유스케이스</b></td><td>Use Case Testing</td><td>사용자 시나리오 기반</td></tr>
+</table>`},
+{num:'3',name:'테스트 자동화 구성요소',p:'🔥',b:`
+<table class="rt"><tr><th>구성요소</th><th>영어</th><th>역할</th></tr>
+<tr><td><b>테스트 하네스</b></td><td>Test Harness</td><td>테스트 환경 구축 도구/프레임워크</td></tr>
+<tr><td><b>테스트 드라이버</b></td><td>Test Driver</td><td>상향식 테스트, 상위 모듈 역할 대신</td></tr>
+<tr><td><b>테스트 스텁</b></td><td>Test Stub</td><td>하향식 테스트, 하위 모듈 역할 대신</td></tr>
+<tr><td><b>테스트 케이스</b></td><td>Test Case</td><td>테스트 최소 단위</td></tr>
+<tr><td><b>테스트 슈트</b></td><td>Test Suite</td><td>테스트 케이스 집합</td></tr>
+<tr><td><b>테스트 스크립트</b></td><td>Test Script</td><td>케이스를 코드화·자동화</td></tr>
+<tr><td><b>테스트 시나리오</b></td><td>Test Scenario</td><td>여러 케이스 묶음, 동작 흐름</td></tr>
+</table>
+<div class="tip"><b>상향식 테스트:</b> 최하위 모듈부터 위쪽으로 (드라이버 필요)<br><b>하향식 테스트:</b> 최상위 모듈부터 아래로 (스텁 필요)</div>`},
+{num:'4',name:'테스트 레벨 / V-모델',p:'🔥',b:`
+<table class="rt"><tr><th>레벨</th><th>핵심</th></tr>
+<tr><td><b>단위 테스트</b></td><td>개별 모듈/컴포넌트 단위 검증</td></tr>
+<tr><td><b>통합 테스트</b></td><td>인터페이스 간 상호작용 검증</td></tr>
+<tr><td><b>시스템 테스트</b></td><td>전체 시스템이 요구사항대로 동작하는지</td></tr>
+<tr><td><b>인수 테스트</b></td><td>사용자 관점, 최종 승인 여부 확인</td></tr>
+</table>
+<div class="tip"><b>알파 테스트:</b> 개발자 환경, 통제된 상태 수행<br><b>베타 테스트:</b> 개발자 없이 사용자 직접 수행<br><b>V-모델 순서:</b> 단위 → 통합 → 시스템 → 인수</div>`},
+{num:'5',name:'인터페이스 보안 / 통신 / 데이터형식',p:'🔥',b:`
+<table class="rt"><tr><th>VPN 프로토콜</th><th>계층</th><th>특징</th></tr>
+<tr><td><b>PPTP</b></td><td>데이터링크</td><td>PPP 기반</td></tr>
+<tr><td><b>L2TP</b></td><td>데이터링크</td><td>L2F + PPTP 결합, VPN 표준</td></tr>
+<tr><td><b>IPSec</b></td><td>네트워크</td><td>IP 패킷 단위 암호화, 가장 강력</td></tr>
+<tr><td><b>SSL/TLS</b></td><td>전송</td><td>HTTPS 기반, 웹 통신 암호화 표준</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>데이터 형식</th><th>주석</th><th>특징</th></tr>
+<tr><td><b>JSON</b></td><td>불가</td><td>key-value 쌍, 경량, 사람이 읽기 쉬움</td></tr>
+<tr><td><b>XML</b></td><td>가능</td><td>태그(&lt;&gt;), 뛰어난 확장성</td></tr>
+<tr><td><b>YAML</b></td><td>가능</td><td>들여쓰기, 사람 친화적</td></tr>
+</table>
+<div class="tip"><b>AJAX:</b> 부분 리로드 / <b>웹소켓:</b> 양방향 실시간 / <b>GraphQL:</b> 필요한 데이터만<br><b>SOAP:</b> XML 메시지 / <b>REST:</b> HTTP+JSON</div>`},
+],
+des:[
+{num:'1',name:'생성 패턴 (싱팩빌프앱)',p:'💯',b:`
+<div class="mnemo">싱팩빌프앱</div>
+<table class="rt"><tr><th>패턴</th><th>핵심</th></tr>
+<tr><td><b>싱글톤(Singleton)</b></td><td>인스턴스 하나만 생성, 어디서든 참조</td></tr>
+<tr><td><b>팩토리 메서드</b></td><td>상위=인터페이스 정의, 서브클래스=실제 생성</td></tr>
+<tr><td><b>빌더(Builder)</b></td><td>단계별 복잡한 객체 생성 (텔레스코핑 패턴 해결)</td></tr>
+<tr><td><b>프로토타입</b></td><td>인스턴스 복제(clone), 필요 부분만 수정</td></tr>
+<tr><td><b>앱스트랙트 팩토리</b></td><td>관련 객체 조합 인터페이스 제공 (Kit)</td></tr>
+</table>`},
+{num:'2',name:'구조 패턴 (어데퍼프브플컴)',p:'💯',b:`
+<div class="mnemo">어데퍼프브플컴</div>
+<table class="rt"><tr><th>패턴</th><th>핵심</th></tr>
+<tr><td><b>어댑터(Adapter)</b></td><td>서로 다른 인터페이스 연결 (변환기)</td></tr>
+<tr><td><b>데코레이터(Decorator)</b></td><td>기존 코드 수정 없이 객체 감싸 기능 추가</td></tr>
+<tr><td><b>퍼사드(Facade)</b></td><td>단순한 인터페이스 제공, 결합도 낮춤</td></tr>
+<tr><td><b>프록시(Proxy)</b></td><td>대리 객체가 실제 객체 대신 처리</td></tr>
+<tr><td><b>브리지(Bridge)</b></td><td>기능 클래스 ↔ 구현 클래스 분리 연결</td></tr>
+<tr><td><b>플라이웨이트(Flyweight)</b></td><td>공유로 메모리 절약, 클래스 경량화</td></tr>
+<tr><td><b>컴포지트(Composite)</b></td><td>트리 구조, 복합/단일 객체 동일하게 처리</td></tr>
+</table>`},
+{num:'3',name:'행위 패턴 (전옵중방이상인매커책템)',p:'💯',b:`
+<div class="mnemo">전옵중방이상인매커책템</div>
+<table class="rt"><tr><th>패턴</th><th>핵심</th></tr>
+<tr><td><b>전략(Strategy)</b></td><td>알고리즘 캡슐화, 동적으로 교체</td></tr>
+<tr><td><b>옵저버(Observer)</b></td><td>상태 변화 → 의존 객체에 자동 알림 (발행/수신)</td></tr>
+<tr><td><b>중재자(Mediator)</b></td><td>객체 간 통신 중앙 관리</td></tr>
+<tr><td><b>방문자(Visitor)</b></td><td>메서드가 각 클래스 순회, 새 기능 추가</td></tr>
+<tr><td><b>이터레이터(Iterator)</b></td><td>컬렉션 요소 순차 탐색 (Cursor)</td></tr>
+<tr><td><b>상태(State)</b></td><td>내부 상태 변경 시 행동 방식 함께 변경</td></tr>
+<tr><td><b>인터프리터</b></td><td>언어 문법 정의 및 해석</td></tr>
+<tr><td><b>메멘토(Memento)</b></td><td>Undo, 객체 상태 외부 노출 없이 저장</td></tr>
+<tr><td><b>커맨드(Command)</b></td><td>Undo, 요청 자체를 객체로 캡슐화</td></tr>
+<tr><td><b>책임 연쇄</b></td><td>요청 처리 객체들을 체인으로 연결</td></tr>
+<tr><td><b>템플릿 메서드</b></td><td>상위=골격(추상메서드), 하위=세부 구체화</td></tr>
+</table>`},
+{num:'4',name:'응집도 / 결합도',p:'🔥',b:`
+<div class="mnemo">응집도↑이 좋음: 기순통절시논우 (기능적이 최고)</div>
+<table class="rt"><tr><th>응집도 (강→약)</th><th>핵심</th></tr>
+<tr><td><b>기능적</b></td><td>단일 목적 수행 (최선 ✅)</td></tr>
+<tr><td><b>순차적</b></td><td>이전 출력 → 다음 입력</td></tr>
+<tr><td><b>통신적(교환적)</b></td><td>동일 입출력 사용</td></tr>
+<tr><td><b>절차적</b></td><td>순서에 따라 수행</td></tr>
+<tr><td><b>시간적</b></td><td>특정 시간에 함께 처리</td></tr>
+<tr><td><b>논리적</b></td><td>논리적으로 유사하나 실제로는 다름</td></tr>
+<tr><td><b>우연적</b></td><td>아무 관련 없이 묶임 (최악 ❌)</td></tr>
+</table>
+<div class="mnemo" style="margin-top:8px">결합도↓이 좋음: 자스제외공내 (자료가 최선)</div>
+<table class="rt"><tr><th>결합도 (약→강)</th><th>핵심</th></tr>
+<tr><td><b>자료(Data)</b></td><td>단순 값 전달 (최선 ✅)</td></tr>
+<tr><td><b>스탬프(Stamp)</b></td><td>자료구조(배열, 객체) 전달</td></tr>
+<tr><td><b>제어(Control)</b></td><td>제어 신호(플래그) 전달</td></tr>
+<tr><td><b>외부(External)</b></td><td>외부 데이터 사용</td></tr>
+<tr><td><b>공통(Common)</b></td><td>전역변수 공유</td></tr>
+<tr><td><b>내용(Content)</b></td><td>내부 직접 접근 (최악 ❌)</td></tr>
+</table>`},
+{num:'5',name:'UML / 클래스다이어그램 / SOLID / 럼바우',p:'🤔',b:`
+<div class="mnemo">정적: 클객컴배복패 / 동적: 유시커상활타</div>
+<table class="rt"><tr><th>클래스다이어그램 관계</th><th>표기</th><th>의미</th></tr>
+<tr><td><b>복합(Composition)</b></td><td>◆ (채운 마름모)</td><td>강한 소유, 생명주기 공유</td></tr>
+<tr><td><b>집합(Aggregation)</b></td><td>◇ (빈 마름모)</td><td>약한 소유, 독립 존재 가능</td></tr>
+<tr><td><b>연관(Association)</b></td><td>─→ (실선 화살표)</td><td>서로 연결</td></tr>
+<tr><td><b>의존(Dependency)</b></td><td>⇢ (점선 화살표)</td><td>짧은 시간 연관</td></tr>
+<tr><td><b>일반화(Generalization)</b></td><td>─▷ (실선 빈삼각)</td><td>상속</td></tr>
+<tr><td><b>실체화(Realization)</b></td><td>--▷ (점선 빈삼각)</td><td>인터페이스 구현</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>SOLID</th><th>한글</th><th>핵심</th></tr>
+<tr><td><b>SRP</b></td><td>단일 책임</td><td>클래스 = 하나의 책임</td></tr>
+<tr><td><b>OCP</b></td><td>개방-폐쇄</td><td>확장엔 열림, 변경엔 닫힘</td></tr>
+<tr><td><b>ISP</b></td><td>인터페이스 분리</td><td>쓰지 않는 메서드에 의존 X</td></tr>
+</table>
+<div class="tip"><b>럼바우 3가지:</b> 객체(ER다이어그램) · 동적(상태다이어그램) · 기능(DFD)</div>`},
+],
+sec:[
+{num:'1',name:'서비스 거부 공격(DoS)',p:'🔥',b:`
+<table class="rt"><tr><th>공격</th><th>핵심</th></tr>
+<tr><td><b>랜드 어택</b></td><td>출발지 IP = 목적지 IP 동일</td></tr>
+<tr><td><b>스머프</b></td><td>ICMP Echo + 브로드캐스팅</td></tr>
+<tr><td><b>티어드롭</b></td><td>IP Fragment 조립 과정 오류 유발</td></tr>
+<tr><td><b>죽음의 핑</b></td><td>과도하게 큰 ICMP 패킷 전송</td></tr>
+<tr><td><b>SYN 플러딩</b></td><td>3-way handshake 미완료, SYN만 대량 전송</td></tr>
+<tr><td><b>UDP 플러딩</b></td><td>UDP 패킷 대량 전송</td></tr>
+</table>
+<div class="tip"><b>DoS:</b> 단일 시스템 공격<br><b>DDoS:</b> 다수 분산 시스템이 특정 서버 동시 공격<br><b>DRDoS:</b> IP 스푸핑 + 정상 제3 서버(반사체) + 증폭</div>`},
+{num:'2',name:'네트워크 공격',p:'🔥',b:`
+<table class="rt"><tr><th>공격 유형</th><th>핵심</th></tr>
+<tr><td><b>사전 공격</b></td><td>사전 단어 대입 (Dictionary Attack)</td></tr>
+<tr><td><b>무차별 대입</b></td><td>모든 문자 조합 시도 (Brute-force)</td></tr>
+<tr><td><b>레인보우 테이블</b></td><td>미리 계산된 해시값 테이블 이용</td></tr>
+<tr><td><b>ARP 스푸핑</b></td><td>MAC 주소 위조, 트래픽 가로채기</td></tr>
+<tr><td><b>세션 하이재킹</b></td><td>3-way handshake 완료 후 세션 가로챔</td></tr>
+<tr><td><b>스니핑</b></td><td>네트워크 패킷 몰래 도청</td></tr>
+</table>
+<div class="tip"><b>스푸핑(Spoofing):</b> '속이다' — 신원 위장<br><b>스니핑(Sniffing):</b> '킁킁거리다' — 패킷 엿보기</div>`},
+{num:'3',name:'악성코드 / 암호 알고리즘',p:'⭐',b:`
+<table class="rt"><tr><th>악성코드</th><th>핵심</th></tr>
+<tr><td><b>웜(Worm)</b></td><td>자가 복제 + 자율 전파, 숙주 불필요</td></tr>
+<tr><td><b>바이러스(Virus)</b></td><td>실행 파일에 기생, 자율 전파 X</td></tr>
+<tr><td><b>트로이 목마</b></td><td>정상 프로그램 위장, 실행 시 악성 동작</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>대칭키 (블록)</th><th>특징</th></tr>
+<tr><td><b>DES</b></td><td>IBM 개발, 블록 64비트</td></tr>
+<tr><td><b>AES</b></td><td>DES 대체, 블록 128비트 (현재 표준)</td></tr>
+<tr><td><b>SEED</b></td><td>KISA 개발, 한국 최초 표준</td></tr>
+<tr><td><b>IDEA</b></td><td>초기 블록 암호화 알고리즘</td></tr>
+</table>
+<table class="rt" style="margin-top:8px"><tr><th>비대칭키</th><th>기반</th></tr>
+<tr><td><b>디피-헬만</b></td><td>최초 공개키, 이산 로그</td></tr>
+<tr><td><b>RSA</b></td><td>소인수분해</td></tr>
+<tr><td><b>ECC</b></td><td>타원곡선 이산 로그, 짧은 키</td></tr>
+</table>
+<div class="tip"><b>해시 함수:</b> 임의 길이 → 고정 길이, 단방향(복호화 불가)<br>MD5(128비트) · SHA-1(160비트) · SHA-2(256/384/512비트)</div>`},
+{num:'4',name:'접근통제 / 3A / 인증 / 클라우드',p:'🤔',b:`
+<table class="rt"><tr><th>접근 통제</th><th>기반</th><th>특징</th></tr>
+<tr><td><b>DAC(임의적)</b></td><td>신분/식별자</td><td>소유자가 직접 권한 허용</td></tr>
+<tr><td><b>MAC(강제적)</b></td><td>규칙/등급</td><td>강력한 중앙 통제</td></tr>
+<tr><td><b>RBAC(역할기반)</b></td><td>역할(Role)</td><td>중앙 관리자, 역할에 부여</td></tr>
+</table>
+<div class="tip"><b>3A:</b> Authentication(인증) · Authorization(권한부여) · Accounting(계정관리)<br><b>SSO:</b> 커버로스 사용, 한번 인증 → 여러 자원 접근<br><b>OAuth:</b> 비밀번호 제공 없이 접근 권한 부여<br><b>OTP:</b> 일회용 비밀번호, 단방향 해시함수로 생성</div>
+<table class="rt" style="margin-top:8px"><tr><th>클라우드 유형</th><th>제공 자원</th></tr>
+<tr><td><b>IaaS</b></td><td>서버·스토리지 인프라</td></tr>
+<tr><td><b>PaaS</b></td><td>개발·관리 플랫폼</td></tr>
+<tr><td><b>SaaS</b></td><td>소프트웨어(앱) 서비스</td></tr>
+</table>`},
+],
+};
+
+// ── QUIZ DATA (25~30 per category) ────────
+const QZ = {
+db:[
+// SQL 기본
+{s:'SQL 명령어',type:'fill',q:'데이터를 수정하는 SQL 명령어 형식은?\n\n<span class="blank">( ① )</span> 테이블 <span class="blank">( ② )</span> 컬럼=값 WHERE 조건;',a:'① UPDATE\n② SET',d:'UPDATE 테이블 SET 컬럼1=값1, 컬럼2=값2 WHERE 조건;'},
+{s:'SQL 명령어',type:'fill',q:'권한을 부여하는 명령어는 <span class="blank">( ① )</span>, 회수하는 명령어는 <span class="blank">( ② )</span>이다.',a:'① GRANT\n② REVOKE',d:'GRANT 권한 ON 테이블 TO 사용자; / REVOKE 권한 ON 테이블 FROM 사용자;'},
+{s:'SQL 명령어',type:'fill',q:'테이블 제거 시 참조하는 테이블까지 삭제하려면 <span class="blank">( ① )</span>, 참조 중이면 삭제 불가로 막으려면 <span class="blank">( ② )</span>를 사용한다.',a:'① CASCADE\n② RESTRICT',d:'DROP TABLE 테이블명 CASCADE; / DROP TABLE 테이블명 RESTRICT;'},
+{s:'SQL 명령어',type:'term',q:'두 SELECT 결과를 합치되 중복된 행을 포함하는 집합 연산자는?',a:'UNION ALL',d:'UNION: 중복 제거 합집합 / UNION ALL: 중복 허용 합집합'},
+{s:'SQL 명령어',type:'fill',q:'GROUP BY 사용 시 집계 결과에 조건을 걸 때 WHERE 대신 <span class="blank">( )</span>를 사용한다.',a:'HAVING',d:'WHERE는 그룹화 전 조건 / HAVING은 그룹화 후 집계에 조건'},
+{s:'SQL 명령어',type:'term',q:'SELECT 결과에서 중복을 제외하고 행의 개수를 구하는 표현식은?',a:'COUNT(DISTINCT 컬럼명)',d:'DISTINCT: 중복 제거 후 처리'},
+{s:'SQL 명령어',type:'fill',q:'서브쿼리에서 컬럼이 서브쿼리의 모든 값보다 커야 할 때 <span class="blank">( ① )</span>, 하나보다만 크면 되면 <span class="blank">( ② )</span>를 사용한다.',a:'① > ALL\n② > ANY (또는 > SOME)',d:'> ALL: 최대값보다 큼 / > ANY: 최솟값보다 큼'},
+{s:'SQL 명령어',type:'fill',q:'특정 문자가 <b>포함</b>된 데이터를 조회하는 LIKE 패턴은 <span class="blank">( )</span>이다.',a:"'%특정문자%'",d:"앞뒤 %: 포함 / '문자%': 시작 / '_문자': 앞 한 글자"},
+{s:'SQL 명령어',type:'term',q:'테이블에 새로운 컬럼을 추가하는 SQL 명령어는?',a:'ALTER TABLE 테이블명 ADD 컬럼명 데이터타입;',d:'기존 컬럼 제거: ALTER TABLE 테이블명 DROP COLUMN 컬럼명;'},
+{s:'SQL 명령어',type:'fill',q:'Oracle에서는 차집합 연산자로 EXCEPT 대신 <span class="blank">( )</span>를 사용한다.',a:'MINUS',d:'표준 SQL은 EXCEPT, Oracle은 MINUS 사용'},
+// 조인
+{s:'SQL 조인',type:'fill',q:'동등 조인(Equi Join)에서 조인에 참여한 중복 속성을 자동으로 제거하는 조인은 <span class="blank">( )</span>이다.',a:'자연 조인 (NATURAL JOIN)',d:'NATURAL JOIN은 ON 절 없이 동일 속성명으로 자동 조인'},
+{s:'SQL 조인',type:'term',q:'두 테이블의 모든 튜플 조합을 반환하는 조인으로, ON 절을 사용하지 않는 조인은?',a:'교차 조인 (CROSS JOIN)',d:'결과 행 수 = 테이블1 행 수 × 테이블2 행 수'},
+// 트랜잭션
+{s:'트랜잭션 ACID',type:'fill',q:'ACID에서 A는 <span class="blank">( ① )</span>(Atomicity)이며, 핵심 개념은 <span class="blank">( ② )</span>이다.',a:'① 원자성\n② All or Nothing',d:'전부 실행되거나 하나도 실행되지 않아야 함'},
+{s:'트랜잭션 ACID',type:'term',q:'트랜잭션의 고립성(Isolation)이 의미하는 것은?',a:'트랜잭션 실행 중 다른 트랜잭션이 끼어들 수 없음 (동시 실행 제어)',d:'ACID 중 I — 직렬화를 보장'},
+{s:'트랜잭션 회복',type:'term',q:'Start와 Commit이 모두 기록되어 있을 때 장애 발생 전 DB로 복구하는 회복 요소는?',a:'Redo (재실행)',d:'Undo: Start만 있고 Commit 없으면 작업 취소'},
+{s:'트랜잭션 회복',type:'fill',q:'여러 트랜잭션이 동시에 읽을 수 있고 쓰기는 불가한 락은 <span class="blank">( ① )</span>, 읽기·쓰기 모두 불가한 락은 <span class="blank">( ② )</span>이다.',a:'① S-Lock (공유 락)\n② X-Lock (배타 락)',d:'S=Shared(읽기), X=Exclusive(쓰기)'},
+// 정규화
+{s:'정규화',type:'order',q:'정규화 순서를 나열하시오.\n\nBCNF, 제1정규형, 제3정규형, 제2정규형',a:'1NF → 2NF → 3NF → BCNF',d:'이후: 4NF(다치종속) → 5NF(조인종속)'},
+{s:'정규화',type:'term',q:'A→B, B→C일 때 A→C가 성립하는 함수 종속을 쓰시오.',a:'이행 함수 종속 (Transitive Functional Dependency)',d:'3NF에서 제거 대상'},
+{s:'정규화',type:'fill',q:'제2정규형은 <span class="blank">( )</span>를 제거하여 완전 함수 종속을 만족시킨 것이다.',a:'부분 함수 종속',d:'기본키의 일부에만 종속된 속성을 분리'},
+{s:'정규화',type:'term',q:'모든 결정자가 후보키여야 하는 조건을 만족하는 정규형은?',a:'BCNF (보이스-코드 정규형)',d:'강한 3NF라고도 불림'},
+{s:'정규화',type:'term',q:'성능 최적화를 위해 정규화된 구조를 의도적으로 중복 허용하는 것은?',a:'반정규화 (De-normalization)',d:'조회 성능↑, 데이터 무결성↓'},
+// 키
+{s:'키(Key)',type:'fill',q:'슈퍼키는 유일성O 최소성<span class="blank">( ① )</span>, 후보키는 유일성O 최소성<span class="blank">( ② )</span>이다.',a:'① ✕ (없음)\n② ✅ (있음)',d:'슈퍼키 ⊃ 후보키 — 후보키는 슈퍼키 중 최소성 만족'},
+{s:'키(Key)',type:'term',q:'후보키 중에서 기본키로 선택되지 않은 나머지 키는?',a:'대체키 (Alternate Key)',d:'후보키 = 기본키 + 대체키'},
+{s:'키(Key)',type:'term',q:'한 릴레이션의 속성이 다른 릴레이션의 기본키를 참조하는 키는?',a:'외래키 (Foreign Key, FK)',d:'참조 무결성: FK는 참조 테이블의 PK값이거나 NULL이어야 함'},
+// 관계대수
+{s:'관계대수',type:'fill',q:'관계대수에서 행(수평)을 선택하는 연산자는 <span class="blank">( ① )</span>(기호: σ), 열(수직)을 선택하는 연산자는 <span class="blank">( ② )</span>(기호: π)이다.',a:'① 셀렉트 (Select)\n② 프로젝트 (Project)',d:'σ=수평(행 조건) / π=수직(열 선택)'},
+// RAID/무결성
+{s:'스토리지',type:'fill',q:'RAID 5는 최소 <span class="blank">( ① )</span>개 디스크가 필요하며, RAID 10은 최소 <span class="blank">( ② )</span>개가 필요하다.',a:'① 3\n② 4',d:'RAID 5: 스트라이핑+분산패리티 / RAID 10: RAID1+RAID0'},
+{s:'스토리지',type:'term',q:'스트라이핑(Striping)만 사용하고 패리티가 없어 빠르지만 안정성이 없는 RAID 레벨은?',a:'RAID 0',d:'데이터 복구 불가, 성능만 중시할 때 사용'},
+{s:'무결성',type:'fill',q:'기본키에 해당하는 무결성은 <span class="blank">( ① )</span>무결성, 외래키에 해당하는 무결성은 <span class="blank">( ② )</span>무결성이다.',a:'① 개체\n② 참조',d:'개체무결성: PK=NOT NULL+유일 / 참조무결성: FK=참조PK값 or NULL'},
+],
+net:[
+// 메모리
+{s:'메모리 교체',type:'fill',q:'LRU는 <span class="blank">( ① )</span>, LFU는 <span class="blank">( ② )</span>을 기준으로 페이지를 교체한다.',a:'① 가장 오랫동안 참조되지 않은 것\n② 참조 횟수가 가장 적은 것',d:'LFU에서 참조횟수 동일하면 FIFO 적용'},
+{s:'메모리 교체',type:'term',q:'FIFO 교체 알고리즘에서 프레임 수를 늘렸는데 오히려 페이지 폴트가 증가하는 이상 현상은?',a:"Belady's Anomaly (벨라디의 이상 현상)",d:'LRU와 LFU에서는 발생하지 않음'},
+// 스케줄링
+{s:'프로세스 스케줄링',type:'fill',q:'SRT는 선점형 <span class="blank">( )</span>이다.',a:'SJF (최단 작업 우선)',d:'SRT = 선점형 SJF: 현재 실행 중인 것보다 더 짧은 프로세스 도착 시 선점'},
+{s:'프로세스 스케줄링',type:'fill',q:'Round Robin은 <span class="blank">( )</span>에 시간 할당량(Time Quantum)을 추가한 선점형 스케줄링이다.',a:'FIFO',d:'시간 할당량이 끝나면 다음 프로세스에 양보'},
+{s:'프로세스 스케줄링',type:'term',q:'반환 시간을 구하는 공식은?',a:'반환 시간 = 대기 시간 + 실행 시간',d:'평균 반환 시간 = 각 프로세스 반환 시간 합 ÷ 프로세스 수'},
+// 라우팅
+{s:'라우팅',type:'fill',q:'RIP는 <span class="blank">( ① )</span> 알고리즘을 사용하고, OSPF는 <span class="blank">( ② )</span> 알고리즘을 사용한다.',a:'① 거리 벡터 (벨만-포드)\n② 링크 상태 (다익스트라)',d:'RIP: 홉 수 기준 / OSPF: 경로 비용 기준, 대규모 네트워크'},
+{s:'라우팅',type:'fill',q:'내부 라우팅 프로토콜(IGP)의 예는 <span class="blank">( ① )</span>와 <span class="blank">( ② )</span>이며, 외부(EGP)의 예는 <span class="blank">( ③ )</span>이다.',a:'① RIP\n② OSPF\n③ BGP',d:'IGP: 동일 AS 내부 / EGP: AS 간 라우팅'},
+// 네트워크 계층
+{s:'네트워크 계층',type:'fill',q:'IP 주소(논리주소)를 MAC 주소(물리주소)로 변환하는 프로토콜은 <span class="blank">( ① )</span>, 반대는 <span class="blank">( ② )</span>이다.',a:'① ARP\n② RARP',d:'ARP: IP→MAC / RARP: MAC→IP'},
+{s:'네트워크 계층',type:'term',q:'사설 IP 주소를 공인 IP 주소로 변환하여 IPv4 주소 부족 문제를 해결하는 프로토콜은?',a:'NAT (Network Address Translation)',d:'공유기가 대표적인 NAT 활용 예시'},
+{s:'네트워크 계층',type:'term',q:'오류 정보 전송에 사용되며, Ping 명령어와 Ping-of-Death 공격에서 활용되는 프로토콜은?',a:'ICMP (Internet Control Message Protocol)',d:'네트워크 계층 프로토콜, 오류 진단용'},
+// 응용 계층
+{s:'응용 계층 포트',type:'fill',q:'SSH는 포트 <span class="blank">( ① )</span>, HTTP는 포트 <span class="blank">( ② )</span>, HTTPS는 포트 <span class="blank">( ③ )</span>을 사용한다.',a:'① 22\n② 80\n③ 443',d:'SSH: 암호화 원격접속 / HTTP: 웹 / HTTPS: 암호화 웹'},
+{s:'응용 계층 포트',type:'fill',q:'메일 전송(발송)은 포트 <span class="blank">( ① )</span>의 SMTP, 메일 수신(다운로드)은 포트 <span class="blank">( ② )</span>의 POP3를 사용한다.',a:'① 25\n② 110',d:'IMAP(143): 메일 수신 동기화, 서버에 남김'},
+{s:'응용 계층 포트',type:'term',q:'도메인 이름을 IP 주소로 변환하는 서비스와 포트번호는?',a:'DNS, 포트 53',d:'Domain Name System — 인터넷의 전화번호부'},
+// HDLC
+{s:'HDLC',type:'fill',q:'HDLC 프레임 종류: 데이터 전달은 <span class="blank">( ① )</span> 프레임, 오류/흐름 제어는 <span class="blank">( ② )</span> 프레임이다.',a:'① I (정보) 프레임\n② S (감시/감독) 프레임',d:'U 프레임: 링크 동작 모드 설정 (제어 시작 비트 11)'},
+// IP / 서브넷
+{s:'IP 주소',type:'fill',q:'IPv4는 <span class="blank">( ① )</span>비트, IPv6는 <span class="blank">( ② )</span>비트이다.',a:'① 32\n② 128',d:'IPv4: 10진수 4그룹(.구분) / IPv6: 16진수 8그룹(:구분)'},
+{s:'서브넷 마스크',type:'fill',q:'서브넷 마스크 255.255.255.0을 CIDR 표기법으로 변환하면 /<span class="blank">( )</span>이다.',a:'/24',d:'255.255.255.0 → 2진수로 변환하면 1이 24개'},
+// Shell Script
+{s:'Shell Script',type:'fill',q:'chmod 754에서 사용자=<span class="blank">( ① )</span>, 그룹=<span class="blank">( ② )</span>, 기타=<span class="blank">( ③ )</span>이다.',a:'① 7 (rwx: 읽기+쓰기+실행)\n② 5 (r-x: 읽기+실행)\n③ 4 (r--: 읽기만)',d:'읽기r=4 / 쓰기w=2 / 실행x=1'},
+{s:'Shell Script',type:'term',q:'파일, 디렉토리의 접근 권한을 변경하는 유닉스 명령어는?',a:'chmod',d:'chmod [사용자권한][그룹권한][기타권한] [파일명]'},
+{s:'Shell Script',type:'term',q:'현재 디렉토리 경로를 확인하는 유닉스 명령어는?',a:'pwd (Print Working Directory)',d:'ls: 목록 / cd: 이동 / cp: 복사 / rm: 삭제'},
+// 오류 제어
+{s:'오류 제어',type:'fill',q:'FEC는 스스로 오류를 <span class="blank">( ① )</span>하고, BEC는 오류 발생 시 송신 측에 <span class="blank">( ② )</span>를 요청한다.',a:'① 수정\n② 재전송',d:'FEC 예: 해밍코드 / BEC 예: ARQ, CRC, 패리티검사'},
+{s:'오류 제어',type:'term',q:'1비트 오류를 검출하고 수정할 수 있는 FEC 방식은?',a:'해밍 코드 (Hamming Code)',d:'FEC(Forward Error Correction): 스스로 오류 수정'},
+// 전송 방식
+{s:'네트워크 전송',type:'fill',q:'패킷 교환 방식 중 비연결형으로 독립적으로 패킷이 전송되는 방식은 <span class="blank">( ① )</span>, 연결형으로 논리적 회선을 미리 연결하는 방식은 <span class="blank">( ② )</span>이다.',a:'① 데이터그램\n② 가상회선',d:'데이터그램: 순서 무관 / 가상회선: 순서 보장'},
+],
+sw:[
+// 테스트 커버리지
+{s:'테스트 커버리지',type:'order',q:'테스트 커버리지 강도를 약한 것부터 나열하시오.\n\n결정, 조건/결정, 구문, MC/DC, 조건',a:'구문 < 결정 < 조건 < 조건/결정 < MC/DC',d:'강도가 높을수록 더 철저한 테스트 (MC/DC가 가장 강함)'},
+{s:'테스트 커버리지',type:'fill',q:'<b>모든 명령문</b>이 최소 1회 이상 수행되는 커버리지는 <span class="blank">( ① )</span>, 각 개별 조건식의 독립적 영향을 검증하는 것은 <span class="blank">( ② )</span>이다.',a:'① 구문(Statement) 커버리지\n② MC/DC 커버리지',d:'MC/DC = Modified Condition/Decision Coverage'},
+{s:'테스트 커버리지',type:'term',q:'모든 결정문의 True/False가 최소 1회씩 실행되도록 하는 커버리지는?',a:'결정(분기) 커버리지 — Decision/Branch Coverage',d:'구문 커버리지보다 강하고 조건 커버리지보다 약함'},
+// 블랙박스
+{s:'블랙박스 테스트',type:'term',q:'입력 데이터를 유효값과 무효값 그룹으로 나누어 각 그룹에서 대표값을 선정하는 테스트 기법은?',a:'동등 분할 (Equivalence Partitioning)',d:'동등 분할 후 경계값을 테스트하면 경곗값 분석'},
+{s:'블랙박스 테스트',type:'term',q:'입력(원인)이 출력(결과)에 미치는 영향을 그래프로 표현하여 테스트 케이스를 선정하는 기법은?',a:'원인-결과 그래프 (Cause-Effect Graph)',d:'인과 관계를 논리적으로 표현'},
+{s:'블랙박스 테스트',type:'fill',q:'논리적 조건과 그에 따른 행동을 표로 정리하는 블랙박스 테스트 기법은 <span class="blank">( )</span>이다.',a:'결정 테이블 (Decision Table)',d:'조건의 조합과 해당 행동을 일목요연하게 정리'},
+{s:'블랙박스 테스트',type:'term',q:'테스터의 경험과 직관을 바탕으로 오류가 발생할 가능성이 높은 부분을 예측하여 테스트하는 기법은?',a:'오류 예측 (Error Guessing)',d:'경험 기반 테스팅 기법'},
+// 테스트 자동화
+{s:'테스트 자동화',type:'fill',q:'상향식 통합 테스트에서 사용되며 상위 모듈의 역할을 임시로 대신하는 것은 <span class="blank">( ① )</span>, 하향식에서 하위 모듈을 대신하는 것은 <span class="blank">( ② )</span>이다.',a:'① 테스트 드라이버 (Test Driver)\n② 테스트 스텁 (Test Stub)',d:'드라이버: 위에서 아래로 호출 / 스텁: 아래에서 위로 호출'},
+{s:'테스트 자동화',type:'term',q:'테스트 케이스를 코드로 작성하여 자동으로 실행할 수 있도록 한 것은?',a:'테스트 스크립트 (Test Script)',d:'테스트 자동화의 핵심 요소'},
+{s:'테스트 자동화',type:'term',q:'SW 도구나 프레임워크로 테스트 환경을 구축하는 테스트 자동화 구성요소는?',a:'테스트 하네스 (Test Harness)',d:'하네스: 마구(馬具) — 테스트 환경을 제어하는 도구'},
+// 테스트 레벨
+{s:'테스트 레벨',type:'order',q:'테스트 레벨을 순서대로 나열하시오.\n\n시스템, 인수, 단위, 통합',a:'단위 → 통합 → 시스템 → 인수',d:'V-모델: 개발 단계와 대응되는 테스트 단계'},
+{s:'테스트 레벨',type:'fill',q:'알파 테스트는 <span class="blank">( ① )</span> 환경에서 수행되고, 베타 테스트는 <span class="blank">( ② )</span>이 없는 환경에서 수행된다.',a:'① 개발자\n② 개발자',d:'알파: 개발자가 통제하는 환경 / 베타: 실제 사용자 환경'},
+{s:'테스트 케이스',type:'fill',q:'테스트 케이스의 5가지 구성 요소를 쓰시오.',a:'식별자 ID · 테스트 항목 · 테스트 조건 · 테스트 데이터 · 예상 결과',d:'테스트 케이스: 테스트의 최소 실행 단위'},
+// 인터페이스 보안
+{s:'인터페이스 보안',type:'fill',q:'VPN에서 L2TP는 <span class="blank">( ① )</span>과 PPTP를 결합한 프로토콜이며, IPSec은 <span class="blank">( ② )</span> 계층에서 동작한다.',a:'① L2F\n② 네트워크 (IP 패킷 단위 암호화)',d:'IPSec이 가장 강력한 VPN 보안 제공'},
+{s:'인터페이스 보안',type:'fill',q:'HTTPS의 기반이 되며 웹 통신 암호화 표준인 프로토콜은 <span class="blank">( )</span>이다.',a:'SSL/TLS',d:'전송 계층에서 동작 / S-HTTP는 응용 계층에서 메시지 단위'},
+// 데이터 형식
+{s:'데이터 형식',type:'fill',q:'JSON은 주석이 <span class="blank">( ① )</span>하고, YAML은 주석이 <span class="blank">( ② )</span>하다.',a:'① 불가능\n② 가능',d:'XML도 주석 가능 / JSON: key-value / YAML: 들여쓰기'},
+{s:'데이터 형식',type:'term',q:'양방향 실시간 통신이 가능하며 서버 푸시와 연결을 계속 유지하는 웹 통신 기술은?',a:'웹소켓 (WebSocket)',d:'AJAX: 부분 리로드(단방향) / 웹소켓: 양방향 실시간'},
+// 웹 서비스
+{s:'웹 서비스',type:'fill',q:'클래식 웹 서비스에서 검색 엔진은 <span class="blank">( ① )</span>, XML 형식으로 기술하는 것은 <span class="blank">( ② )</span>, XML 메시지 프로토콜은 <span class="blank">( ③ )</span>이다.',a:'① UDDI\n② WSDL\n③ SOAP',d:'현대: REST(HTTP+JSON)가 주류'},
+],
+des:[
+// 디자인 패턴 - 생성
+{s:'생성 패턴',type:'term',q:'클래스 인스턴스를 오직 하나만 생성하고 어디서든 참조할 수 있도록 하는 패턴은?',a:'싱글톤 (Singleton)',d:'생성 패턴 — 싱팩빌프앱 중 "싱"'},
+{s:'생성 패턴',type:'term',q:'상위 클래스는 인터페이스만 정의하고, 서브 클래스가 실제 객체 생성을 담당하는 패턴은?',a:'팩토리 메서드 (Factory Method)',d:'AbstractCreator → ConcreteCreator'},
+{s:'생성 패턴',type:'term',q:'관련 객체들의 조합을 만드는 인터페이스(API)를 제공하며 "Kit"이라고도 불리는 패턴은?',a:'앱스트랙트 팩토리 (Abstract Factory)',d:'생성 패턴 — 싱팩빌프앱 중 "앱"'},
+{s:'생성 패턴',type:'term',q:'객체의 인스턴스를 복제(clone)하여 생성하며 필요한 부분만 수정하는 패턴은?',a:'프로토타입 (Prototype)',d:'생성 패턴 — 싱팩빌프앱 중 "프"'},
+// 디자인 패턴 - 구조
+{s:'구조 패턴',type:'term',q:'서로 다른 인터페이스를 가진 클래스들을 연결해 주는 구조 패턴은?',a:'어댑터 (Adapter)',d:'변환기처럼 인터페이스를 맞춰줌 — "어"'},
+{s:'구조 패턴',type:'term',q:'기존 코드를 수정하지 않고 객체를 감싸서 새로운 기능을 추가하는 구조 패턴은?',a:'데코레이터 (Decorator)',d:'Wrapper 패턴이라고도 함 — "데"'},
+{s:'구조 패턴',type:'fill',q:'객체의 대리자(Surrogate)가 실제 객체 대신 처리하는 구조 패턴은 <span class="blank">( ① )</span>, 단순한 인터페이스 제공으로 결합도를 낮추는 패턴은 <span class="blank">( ② )</span>이다.',a:'① 프록시 (Proxy)\n② 퍼사드 (Facade)',d:'프록시: 보안/캐싱 등 / 퍼사드: 복잡한 서브시스템을 단순화'},
+// 디자인 패턴 - 행위
+{s:'행위 패턴',type:'term',q:'한 객체의 상태가 바뀌면 의존하는 다른 객체들에게 자동으로 알리고 갱신하는 행위 패턴은?',a:'옵저버 (Observer)',d:'발행/구독 모델 — "옵"'},
+{s:'행위 패턴',type:'term',q:'컬렉션 내의 모든 요소를 순차적으로 탐색하는 패턴으로 Cursor라고도 불리는 것은?',a:'이터레이터 (Iterator)',d:'내부 구조 노출 없이 순차 접근 — "이"'},
+{s:'행위 패턴',type:'fill',q:'실행 취소(Undo) 기능과 관련된 패턴 2가지는 <span class="blank">( ① )</span>과 <span class="blank">( ② )</span>이다.',a:'① 메멘토 (Memento) — 객체 상태 외부 노출 X\n② 커맨드 (Command) — 요청을 객체로 캡슐화',d:'두 패턴 모두 Undo와 관련되므로 구분이 중요'},
+{s:'행위 패턴',type:'term',q:'메서드가 각 클래스를 돌아다니며 새로운 기능(연산)을 추가할 때 사용하는 행위 패턴은?',a:'방문자 (Visitor)',d:'기존 클래스 구조를 변경하지 않고 새 연산 추가 — "방"'},
+{s:'행위 패턴',type:'term',q:'알고리즘군을 정의하고 캡슐화하여 동적으로 교체할 수 있게 하는 행위 패턴은?',a:'전략 (Strategy)',d:'런타임에 알고리즘 교체 가능 — "전"'},
+// 응집도/결합도
+{s:'응집도·결합도',type:'order',q:'응집도를 강한 것부터 약한 순서로 나열하시오.\n\n우연적, 기능적, 시간적, 순차적, 논리적, 절차적, 통신적',a:'기능적 > 순차적 > 통신적 > 절차적 > 시간적 > 논리적 > 우연적',d:'암기법: 기순통절시논우 (강→약)'},
+{s:'응집도·결합도',type:'fill',q:'결합도가 가장 낮은(좋은) 것은 <span class="blank">( ① )</span>이고, 가장 높은(나쁜) 것은 <span class="blank">( ② )</span>이다.',a:'① 자료(Data) 결합도\n② 내용(Content) 결합도',d:'암기법: 자스제외공내 (약→강)'},
+{s:'응집도·결합도',type:'term',q:'모든 기능이 단일 목적을 위해 수행되는 가장 이상적인 응집도는?',a:'기능적 응집도 (Functional Cohesion)',d:'응집도가 높을수록 좋음 — 기능적이 최선'},
+{s:'응집도·결합도',type:'fill',q:'이전 모듈의 출력이 다음 모듈의 입력으로 사용되는 응집도는 <span class="blank">( )</span>이다.',a:'순차적 응집도 (Sequential Cohesion)',d:'파이프라인 처럼 연결된 구조'},
+// SOLID
+{s:'SOLID',type:'fill',q:'SOLID에서 OCP는 <span class="blank">( ① )</span>에는 열려 있고, <span class="blank">( ② )</span>에는 닫혀 있어야 한다는 원칙이다.',a:'① 확장\n② 변경',d:'Open-Closed Principle: 새 기능 추가 시 기존 코드 수정 최소화'},
+{s:'SOLID',type:'term',q:'하나의 클래스는 하나의 책임만 가져야 한다는 SOLID 원칙은?',a:'SRP (Single Responsibility Principle, 단일 책임 원칙)',d:'클래스가 변경될 이유는 오직 하나여야 함'},
+// UML
+{s:'UML',type:'fill',q:'UML 정적 다이어그램 6가지를 암기어로 쓰시오.',a:'클객컴배복패\n(클래스·객체·컴포넌트·배치·복합체·패키지)',d:'동적: 유시커상활타 (유스케이스·시퀀스·커뮤니케이션·상태·활동·타이밍)'},
+// 클래스 다이어그램
+{s:'클래스 다이어그램',type:'fill',q:'채운 마름모(◆)는 <span class="blank">( ① )</span>, 빈 마름모(◇)는 <span class="blank">( ② )</span> 관계이다.',a:'① 복합 (Composition) — 강한 소유, 생명주기 공유\n② 집합 (Aggregation) — 약한 소유, 독립 존재 가능',d:'복합: 부모 사라지면 자식도 사라짐'},
+{s:'클래스 다이어그램',type:'fill',q:'상속 관계(일반화)는 <span class="blank">( ① )</span> 빈 삼각 화살표, 인터페이스 구현(실체화)는 <span class="blank">( ② )</span> 빈 삼각 화살표이다.',a:'① 실선 (─▷)\n② 점선 (- -▷)',d:'포집연의일실: 포함·집합·연관·의존·일반화·실체화'},
+// 럼바우
+{s:'럼바우',type:'fill',q:'럼바우 모델링의 3가지: 객체 모델링(산출물: <span class="blank">( ① )</span>), 동적 모델링(산출물: <span class="blank">( ② )</span>), 기능 모델링(산출물: <span class="blank">( ③ )</span>)',a:'① ER 다이어그램\n② 상태 다이어그램\n③ 자료 흐름도 (DFD)',d:'OMT: Object Modeling Technique'},
+],
+sec:[
+// DoS
+{s:'서비스 거부 공격',type:'term',q:'패킷의 출발지 IP와 목적지 IP를 동일하게 설정하여 서버가 자기 자신에게 응답하도록 만드는 공격은?',a:'랜드 어택 (LAND Attack)',d:'Land = 착지, 제자리에서 자기 공격'},
+{s:'서비스 거부 공격',type:'term',q:'ICMP Echo 패킷을 브로드캐스팅하여 네트워크 전체가 피해자에게 응답하도록 유도하는 공격은?',a:'스머프 (Smurf / Smurfing)',d:'ICMP Echo + 브로드캐스팅이 핵심'},
+{s:'서비스 거부 공격',type:'fill',q:'SYN 플러딩은 TCP <span class="blank">( ① )</span>를 완료하지 않고 <span class="blank">( ② )</span> 패킷만 대량 전송하여 서버 자원을 고갈시킨다.',a:'① 3-way handshake\n② SYN',d:'서버는 SYN-ACK 후 ACK 기다리며 연결 유지 → 자원 소진'},
+{s:'서비스 거부 공격',type:'fill',q:'DDoS는 <span class="blank">( ① )</span> 시스템이 공격하고, DRDoS는 IP 스푸핑과 <span class="blank">( ② )</span>를 이용한다.',a:'① 다수의 분산된\n② 반사체(정상) 서버',d:'DRDoS = Distributed Reflection DoS: 증폭 효과'},
+{s:'서비스 거부 공격',type:'term',q:'IP Fragment를 재조립하는 과정에서 오류를 유발하여 시스템을 마비시키는 DoS 공격은?',a:'티어드롭 (Tear Drop)',d:'Fragment 오프셋 값을 조작하여 재조립 오류 유발'},
+// 네트워크 공격
+{s:'네트워크 공격',type:'term',q:'TCP 3-way handshake가 완료된 후 합법적 사용자의 세션을 공격자가 가로채는 공격은?',a:'세션 하이재킹 (Session Hijacking)',d:"'세션을 가로채다' — TCP 세션을 탈취"},
+{s:'네트워크 공격',type:'term',q:'미리 계산된 해시값 테이블을 활용하여 패스워드를 역추적하는 공격 기법은?',a:'레인보우 테이블 공격 (Rainbow Table Attack)',d:'해시를 미리 계산해 반전 조회'},
+{s:'네트워크 공격',type:'fill',q:'ARP 스푸핑은 <span class="blank">( )</span> 주소를 위조하여 트래픽을 가로채는 공격이다.',a:'MAC (물리 주소)',d:'ARP 캐시 테이블을 변조하여 중간자 공격 수행'},
+{s:'네트워크 공격',type:'fill',q:'패스워드 크래킹 중 사전에 있는 단어를 대입하는 것은 <span class="blank">( ① )</span>, 모든 문자 조합을 시도하는 것은 <span class="blank">( ② )</span>이다.',a:'① 사전 공격 (Dictionary Attack)\n② 무차별 공격 (Brute-force Attack)',d:'하이브리드 공격: 사전 공격 + 무차별 공격 결합'},
+// 악성코드
+{s:'악성코드',type:'fill',q:'웜(Worm)은 숙주 없이 <span class="blank">( ① )</span>하며 네트워크로 전파, 바이러스는 <span class="blank">( ② )</span>에 기생하여 전파된다.',a:'① 자가 복제\n② 실행 파일(프로그램)',d:'트로이 목마: 정상 프로그램 위장, 자기복제 없음'},
+{s:'악성코드',type:'term',q:'정상적인 프로그램으로 위장하여 사용자가 실행하면 악성 코드가 동작하며 자기 복제는 하지 않는 악성코드는?',a:'트로이 목마 (Trojan Horse)',d:'백도어, 키로거 설치에 주로 사용됨'},
+// 암호 알고리즘
+{s:'암호 알고리즘',type:'fill',q:'대칭키는 암호화·복호화 키가 <span class="blank">( ① )</span>, 비대칭키는 <span class="blank">( ② )</span>키와 <span class="blank">( ③ )</span>키가 따로 존재한다.',a:'① 같다 (동일)\n② 공개\n③ 개인',d:'대칭키: 빠름, 키 전달 문제 / 비대칭키: 느림, 키 전달 문제 없음'},
+{s:'암호 알고리즘',type:'term',q:'KISA(한국인터넷진흥원)가 개발한 한국 최초의 블록 암호화 표준 알고리즘은?',a:'SEED',d:'한국 표준 블록 암호화 알고리즘'},
+{s:'암호 알고리즘',type:'fill',q:'AES는 블록 크기 <span class="blank">( ① )</span>비트, DES는 블록 크기 <span class="blank">( ② )</span>비트이다.',a:'① 128\n② 64',d:'AES: DES의 취약점 개선, 현재 표준 / DES: IBM 개발 (구식)'},
+{s:'암호 알고리즘',type:'term',q:'임의의 길이 데이터를 고정된 길이로 바꾸는 단방향 함수로, 복호화가 불가능한 암호화 방식은?',a:'해시 함수 (Hash Function)',d:'MD5·SHA-1·SHA-2가 대표적'},
+{s:'암호 알고리즘',type:'fill',q:'RSA는 <span class="blank">( ① )</span> 기반, ECC는 <span class="blank">( ② )</span> 기반의 비대칭키 알고리즘이다.',a:'① 소인수분해\n② 타원곡선 이산 로그',d:'ECC는 짧은 키로 RSA와 동등한 보안 수준 제공'},
+{s:'암호 알고리즘',type:'term',q:'최초의 공개키 암호 알고리즘으로 이산 로그 기반인 것은?',a:'디피-헬만 (Diffie-Hellman)',d:'비대칭키 암호의 시작 — 키 교환에 사용'},
+// 접근 통제
+{s:'접근 통제',type:'fill',q:'신분/식별자 기반으로 소유자가 직접 권한을 허용하는 접근 통제는 <span class="blank">( ① )</span>, 역할에 기초하여 중앙 관리자가 관리하는 것은 <span class="blank">( ② )</span>이다.',a:'① DAC (임의적 접근 통제)\n② RBAC (역할기반 접근 통제)',d:'MAC(강제적): 규칙/등급 기반, 강력한 중앙 통제'},
+// 3A / 인증
+{s:'인증/3A',type:'fill',q:'3A는 <span class="blank">( ① )</span>(인증), <span class="blank">( ② )</span>(권한 부여), <span class="blank">( ③ )</span>(계정 관리)이다.',a:'① Authentication\n② Authorization\n③ Accounting',d:"어쎈 인증! 어떠한 권한 부여? — Authentication은 '어쎈'으로 암기"},
+{s:'인증/3A',type:'term',q:'커버로스(Kerberos)를 사용하여 한번 인증하면 여러 컴퓨터 자원에 접근할 수 있는 인증 기술은?',a:'SSO (Single Sign-On)',d:'티켓 기반, 대칭키 암호화'},
+{s:'인증/3A',type:'term',q:'비밀번호를 제공하지 않고 웹사이트 접근 권한을 부여할 수 있는 인증 기술은?',a:'OAuth',d:'소셜 로그인(카카오, 구글)에서 많이 사용'},
+// 클라우드/신기술
+{s:'클라우드',type:'fill',q:'클라우드에서 서버·스토리지 인프라 제공은 <span class="blank">( ① )</span>, 개발 플랫폼 제공은 <span class="blank">( ② )</span>, 소프트웨어 서비스 제공은 <span class="blank">( ③ )</span>이다.',a:'① IaaS\n② PaaS\n③ SaaS',d:'Infrastructure / Platform / Software as a Service'},
+{s:'소프트웨어 신기술',type:'term',q:'독립적 서비스들이 API로 통신하며 장애 격리와 DevOps를 지원하는 아키텍처는?',a:'마이크로서비스 아키텍처 (MSA)',d:'Microservice Architecture — 모놀리식의 반대'},
+{s:'네트워크 신기술',type:'term',q:'IoT 표준 경량 메시징 프로토콜로 발행/구독 모델을 사용하는 것은?',a:'MQTT (Message Queuing Telemetry Transport)',d:'저전력·저대역폭 환경에 최적화'},
+],
+};
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let curCat='db', curMode='review';
+let qList=[], qIdx=0, sc=0, sw=0, revealed=false;
+let wrongList = [];
+const wrongMap = {}; // cat -> array of wrong q's
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+window.onload = () => setCat('db');
+
+function setCat(cat) {
+  curCat = cat;
+  const c = CATS[cat];
+  document.documentElement.style.setProperty('--ac', c.color);
+  document.documentElement.style.setProperty('--ac2', c.color);
+  document.documentElement.style.setProperty('--ac-light', hexToLight(c.color));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('on', b.dataset.cat===cat));
+  document.getElementById('hd-cat-name').textContent = c.name;
+  document.getElementById('hd-badge').textContent = c.badge;
+  const qc = (QZ[cat]||[]).length;
+  document.getElementById('hd-stat').textContent = `문제 ${qc}개`;
+  if(curMode==='review') renderReview();
+  else if(curMode==='quiz') startQuiz();
+  else renderWrongList();
+}
+
+function hexToLight(hex) {
+  // Generate a light version of the color
+  const map = {
+    '#3B5BDB':'#EEF2FF','#7C3AED':'#F3EEFF','#059669':'#ECFDF5',
+    '#D97706':'#FFFBEB','#DC2626':'#FFF1F1'
+  };
+  return map[hex] || '#EEF2FF';
+}
+
+function setMode(mode) {
+  curMode = mode;
+  document.querySelectorAll('.mode-tab').forEach((b,i) => b.classList.toggle('on', ['review','quiz','wronglist'][i]===mode));
+  document.getElementById('view-review').classList.toggle('on', mode==='review');
+  document.getElementById('view-quiz').classList.toggle('on', mode==='quiz');
+  document.getElementById('view-wronglist').classList.toggle('on', mode==='wronglist');
+  if(mode==='review') renderReview();
+  else if(mode==='quiz') startQuiz();
+  else renderWrongList();
+}
+
+// ─────────────────────────────────────────
+// REVIEW
+// ─────────────────────────────────────────
+function renderReview() {
+  const wrap = document.getElementById('view-review');
+  wrap.innerHTML = (RV[curCat]||[]).map((s,i) => `
+    <div class="rcard" id="rc${i}">
+      <div class="rcard-hd" onclick="tog('rc${i}')">
+        <div class="rcard-hd-l">
+          <div class="rcard-num">${s.num}</div>
+          <div class="rcard-name">${s.name}</div>
+        </div>
+        <span class="prob-badge">${s.p}</span>
+        <span class="arr">▾</span>
+      </div>
+      <div class="rcard-body">${s.b}</div>
+    </div>`).join('');
+  tog('rc0');
+}
+
+function tog(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// ─────────────────────────────────────────
+// QUIZ
+// ─────────────────────────────────────────
+function startQuiz() {
+  const qs = QZ[curCat] || [];
+  qList = shuffle([...qs]);
+  qIdx = 0; sc = 0; sw = 0; revealed = false;
+  wrongList = [];
+  document.getElementById('qresult').classList.remove('show');
+  document.getElementById('qcard').style.display = '';
+  document.getElementById('qactions').classList.remove('show');
+  document.getElementById('hd-stat').textContent = `총 ${qs.length}문제`;
+  if(qList.length) showQ();
+}
+
+const TYPE_LABEL = {fill:'빈칸 채우기', term:'용어 쓰기', order:'순서 나열'};
+const TYPE_COLOR = {fill:'fill', term:'term', order:'order'};
+
+function showQ() {
+  if(qIdx >= qList.length) { showResult(); return; }
+  const q = qList[qIdx];
+  revealed = false;
+  document.getElementById('q-section').textContent = q.s;
+  document.getElementById('q-num').textContent = `${qIdx+1} / ${qList.length}`;
+  const tb = document.getElementById('q-type-badge');
+  tb.className = 'qtype-badge ' + (TYPE_COLOR[q.type]||'term');
+  tb.textContent = TYPE_LABEL[q.type] || q.type;
+  document.getElementById('q-txt').innerHTML = q.q.replace(/\n/g,'<br>');
+  document.getElementById('q-ans').classList.remove('show');
+  document.getElementById('q-ans-main').innerHTML = (q.a||'').replace(/\n/g,'<br>');
+  document.getElementById('q-ans-desc').innerHTML = (q.d||'').replace(/\n/g,'<br>');
+  document.getElementById('reveal-btn').style.display = '';
+  document.getElementById('qactions').classList.remove('show');
+  updateProg();
+  // animate
+  const card = document.getElementById('qcard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = '';
+}
+
+function reveal() {
+  if(revealed) return;
+  revealed = true;
+  document.getElementById('q-ans').classList.add('show');
+  document.getElementById('reveal-btn').style.display = 'none';
+  document.getElementById('qactions').classList.add('show');
+}
+
+function mark(correct) {
+  if(!correct) {
+    wrongList.push(qList[qIdx]);
+  }
+  if(correct) sc++; else sw++;
+  qIdx++;
+  showQ();
+}
+
+function updateProg() {
+  const total = qList.length, done = qIdx;
+  document.getElementById('prog-label').textContent = `${done} / ${total}`;
+  document.getElementById('pbar').style.width = (total>0 ? done/total*100 : 0) + '%';
+  document.getElementById('sc-c').textContent = `✓ ${sc}`;
+  document.getElementById('sc-w').textContent = `✗ ${sw}`;
+}
+
+function showResult() {
+  const total = qList.length;
+  const pct = Math.round(sc/total*100);
+  const e = pct>=90?'🎉':pct>=70?'👍':pct>=50?'💪':'📚';
+  const t = pct>=90?'완벽해요!':pct>=70?'잘했어요!':pct>=50?'절반은 맞혔어요!':'더 공부가 필요해요!';
+  const sub = pct>=90?'이 파트 자신 있게 가도 됩니다!':pct>=70?'틀린 것만 복습하면 완벽!':pct>=50?'복습하고 다시 도전해 보세요.':'복습 탭으로 한 번 더 보고 오세요!';
+  document.getElementById('r-emoji').textContent = e;
+  document.getElementById('r-title').textContent = t;
+  document.getElementById('r-sub').textContent = sub;
+  document.getElementById('r-pct').textContent = pct + '%';
+  document.getElementById('r-c').textContent = sc;
+  document.getElementById('r-w').textContent = sw;
+  document.getElementById('r-t').textContent = total;
+  document.getElementById('qcard').style.display = 'none';
+  document.getElementById('qactions').classList.remove('show');
+  document.getElementById('qresult').classList.add('show');
+  // show wrong button if needed
+  const rwBtn = document.getElementById('btn-rw');
+  if(wrongList.length > 0) {
+    rwBtn.textContent = `❌ 틀린 문제 보기 (${wrongList.length}개)`;
+    rwBtn.classList.add('show');
+    // save to wrongMap
+    wrongMap[curCat] = [...wrongList];
+    updateWrongDot();
+  } else {
+    rwBtn.classList.remove('show');
+  }
+  updateProg();
+}
+
+function updateWrongDot() {
+  const totalWrong = Object.values(wrongMap).reduce((a,v) => a+v.length, 0);
+  // just update current tab dot
+}
+
+function goWrongList() {
+  setMode('wronglist');
+}
+
+// ─────────────────────────────────────────
+// WRONG LIST
+// ─────────────────────────────────────────
+function renderWrongList() {
+  const wrongs = wrongMap[curCat] || [];
+  document.getElementById('wl-hd').textContent = wrongs.length > 0 ? `${CATS[curCat].name} — 틀린 문제 ${wrongs.length}개` : '틀린 문제 없음';
+  if(wrongs.length === 0) {
+    document.getElementById('wl-body').innerHTML = '<div style="text-align:center;padding:40px 16px;color:var(--sub);font-size:14px;font-weight:700">🎉 틀린 문제가 없습니다!<br>퀴즈를 먼저 풀어보세요.</div>';
+    return;
+  }
+  document.getElementById('wl-body').innerHTML = wrongs.map((q,i) => `
+    <div class="wrong-card">
+      <div class="wrong-q">${i+1}. ${q.q.replace(/<span class="blank">\( [^)]*\)<\/span>/g,'<u>( ? )</u>').replace(/<[^>]+>/g,'').replace(/\n/g,' ')}</div>
+      <div class="wrong-a-label">✅ 정답</div>
+      <div class="wrong-a">${(q.a||'').replace(/\n/g,'<br>')}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────
+function shuffle(a) {
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+</script>
+</body>
+</html>
